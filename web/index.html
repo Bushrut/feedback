@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ввод данных</title>
+</head>
+
+<body>
+    <h2>Введите ваш отзыв:</h2>
+    <form method="POST" action="addfeedback">
+        <p></p><label for="nickname">Имя</label><br>
+        <input type="text" id="nickname" name="nickname" placeholder="Введите ваше имя" required/> </p>
+        <p><label for="message">Сообщение</label><br>
+            <textarea name="message" id="message" cols="25" rows="10" required></textarea>
+        </p>
+
+        <button type="submit" >Отправить</button>
+    </form>
+    <ul>
+        <li>Имя:</li>
+        <li>Сообщение:</li>
+        <li>Дата:</li>
+    </ul>
+</body>
+
+</html>
