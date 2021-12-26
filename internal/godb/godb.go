@@ -14,32 +14,30 @@ type Instance struct {
 }
 
 type User struct {
-	Name     string
-	Age      int
-	IsVerify bool
+	Name    string
+	Message string
 }
 
 func (i *Instance) Start() {
 	fmt.Println("Progect godb started")
-	i.getAllUsers(context.Background())
-	i.updateUserAge(context.Background(), "Dmitri", 26)
-	i.getUserByName(context.Background(), "Dmitri")
+	// i.updateUserMessage(context.Background(), "Dmitri", "какой то положительный отзыв")
+	// i.addUser(context.Background(), "sasdrow", "perfect feedback")
+	// i.getUserByName(context.Background(), "alex")
 }
 
-func (i *Instance) addUser(ctx context.Context, name string, age int, isVerify bool) {
-	commandTag, err := i.Db.Exec(ctx, "INSERT INTO users (created_at, name, age, verify) VALUES ($1, $2, $3, $4)", time.Now(), name, age, isVerify)
+func (i *Instance) AddUser(ctx context.Context, name string, message string) {
+	_, err := i.Db.Exec(ctx, "INSERT INTO users (created_at, name, message) VALUES ($1, $2, $3)", time.Now(), name, message)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(commandTag.String())
-	fmt.Println(commandTag.RowsAffected())
+	fmt.Printf("Добавлен пользователь: %s\nСообщение: %s\n", name, message)
 }
 
-func (i *Instance) getAllUsers(ctx context.Context) {
+func (i *Instance) GetAllUsers(ctx context.Context) []User {
 	var users []User
-	rows, err := i.Db.Query(ctx, "SELECT name, age, verify FROM users;")
+	rows, err := i.Db.Query(ctx, "SELECT name, message FROM users;")
 	if err == pgx.ErrNoRows {
 		fmt.Println("No rows")
 	} else if err != nil {
@@ -50,16 +48,17 @@ func (i *Instance) getAllUsers(ctx context.Context) {
 
 	for rows.Next() {
 		user := User{}
-		rows.Scan(&user.Name, &user.Age, &user.IsVerify)
+		rows.Scan(&user.Name, &user.Message)
 		users = append(users, user)
 	}
 
 	fmt.Println(users)
+	return users
 
 }
 
-func (i *Instance) updateUserAge(ctx context.Context, name string, age int) {
-	_, err := i.Db.Exec(ctx, "UPDATE users SET age=$1 WHERE name=$2;", age, name)
+func (i *Instance) updateUserMessage(ctx context.Context, name string, message string) {
+	_, err := i.Db.Exec(ctx, "UPDATE users SET message=$1 WHERE name=$2;", message, name)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -68,11 +67,11 @@ func (i *Instance) updateUserAge(ctx context.Context, name string, age int) {
 
 func (i *Instance) getUserByName(ctx context.Context, name string) {
 	user := &User{}
-	err := i.Db.QueryRow(ctx, "SELECT name, age, verify FROM users WHERE name=$1 LIMIT 1;", name).Scan(&user.Name, &user.Age, &user.IsVerify)
+	err := i.Db.QueryRow(ctx, "SELECT name, message FROM users WHERE name=$1 LIMIT 1;", name).Scan(&user.Name, &user.Message)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Printf("User by name: %v\n", user)
+	fmt.Printf("User by name: %v\nUser message: %v\n", user.Name, user.Message)
 }

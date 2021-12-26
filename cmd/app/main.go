@@ -5,12 +5,14 @@ import (
 	"feedback/internal/godb"
 	"feedback/pkg/helpers/pg"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
+	"text/template"
 )
 
 var tpl = template.Must(template.ParseFiles("web/index.html"))
+var user = &godb.User{}
+var db = godb.Instance{}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.Execute(w, nil)
@@ -22,25 +24,22 @@ func addFeedback(w http.ResponseWriter, r *http.Request) {
 
 	nickname := r.Form.Get("nickname")
 	msg := r.Form.Get("message")
+	user.Name = nickname
+	user.Message = msg
+	db.AddUser(context.Background(), user.Name, user.Message)
 
-	fmt.Println(nickname, msg)
-	tpl.Execute(w, nil)
+	http.Redirect(w, r, "/", 301)
 
 }
 
 func main() {
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", indexHandler)
-	mux.HandleFunc("/addfeedback", addFeedback)
-	http.ListenAndServe(":8080", mux)
 
 	cfg := &pg.Config{
 		Host:     "localhost",
 		Username: "db_user",
 		Password: "pwd123",
 		Port:     "54320",
-		DbName:   "db_test",
+		DbName:   "db_feedback",
 		Timeout:  5,
 	}
 
@@ -67,7 +66,12 @@ func main() {
 	}
 	fmt.Println("Ping OK")
 
-	ins := &godb.Instance{Db: c}
-	ins.Start()
+	db = godb.Instance{Db: c}
+	db.Start()
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/addfeedback", addFeedback)
+	http.ListenAndServe(":8080", mux)
 
 }
