@@ -28,7 +28,7 @@ func addFeedback(w http.ResponseWriter, r *http.Request) {
 	user.Message = msg
 	db.AddUser(context.Background(), user.Name, user.Message)
 
-	http.Redirect(w, r, "/", 301)
+	http.Redirect(w, r, "/", http.StatusFound)
 
 }
 

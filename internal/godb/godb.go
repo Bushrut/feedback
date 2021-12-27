@@ -20,9 +20,6 @@ type User struct {
 
 func (i *Instance) Start() {
 	fmt.Println("Progect godb started")
-	// i.updateUserMessage(context.Background(), "Dmitri", "какой то положительный отзыв")
-	// i.addUser(context.Background(), "sasdrow", "perfect feedback")
-	// i.getUserByName(context.Background(), "alex")
 }
 
 func (i *Instance) AddUser(ctx context.Context, name string, message string) {
