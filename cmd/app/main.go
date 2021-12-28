@@ -15,12 +15,19 @@ var user = &godb.User{}
 var db = godb.Instance{}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
+	err := tpl.Execute(w, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 }
 
 func addFeedback(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	nickname := r.Form.Get("nickname")
 	msg := r.Form.Get("message")
@@ -72,6 +79,9 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", indexHandler)
 	mux.HandleFunc("/addfeedback", addFeedback)
-	http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", mux)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 }
